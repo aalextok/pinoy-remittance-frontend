@@ -16,6 +16,12 @@ const routes = [
     component: () => import('./components/Login.vue'),
   },
   {
+    name: 'transaction',
+    path: '/transaction/:id',
+    component: () => import('./components/Transaction.vue'),
+    props: true,
+  },
+  {
     name: 'dashboard',
     path: '/dashboard',
     component: () => import('./components/Dashboard.vue'),

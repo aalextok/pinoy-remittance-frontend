@@ -37,7 +37,7 @@ const translation = {
   },
   register_new_user: {
     eng: 'Sign up',
-    fil: ''
+    fil: 'Mag-sign up'
   },
   password: {
     eng: 'Password',
@@ -49,27 +49,83 @@ const translation = {
   },
   bank_name: {
     eng: 'Bank name',
-    fil: ''
+    fil: 'Pangalan ng bangko'
   },
   account_name: {
     eng: 'Account name',
-    fil: ''
+    fil: 'Pangalan ng account'
   },
   account_number: {
     eng: 'Account number',
-    fil: ''
+    fil: 'Numero ng account'
   },
   receiver_name: {
     eng: 'Receiver name',
-    fil: '',
+    fil: 'Pangalan ng tatanggap',
   },
   receiver_address: {
     eng: 'Receiver address',
-    fil: '',
+    fil: 'Address ng tatanggap',
   },
   receiver_date_of_birth: {
     eng: 'Receiver date of birth',
-    fil: '',
+    fil: 'Petsa ng kapanganakan ng tatanggap',
+  },
+  existing_receivers: {
+    eng: 'Select from previous receivers',
+    fil: 'Pumili mula sa mga nakaraang tatanggap'
+  },
+  existing_accounts: {
+    eng: 'Select from previous bank accounts',
+    fil: 'Pumili mula sa nakaraang mga bank account'
+  },
+  amount_to_send: {
+    eng: 'Amount to send',
+    fil: 'Halagang ipadala'
+  },
+  amount_to_receive: {
+    eng: 'Amount to be received',
+    fil: 'Halagang matatanggap'
+  },
+  exchange_rate: {
+    eng: 'Exchange rate',
+    fil: 'Exchange rate'
+  },
+  fee: {
+    eng: 'Fee',
+    fil: 'Bayad'
+  },
+  sender: {
+    eng: 'Sender',
+    fil: 'Nagpapadala'
+  },
+  receiver: {
+    eng: 'Receiver',
+    fil: 'Tagatanggap'
+  },
+  bank_account: {
+    eng: 'Bank account',
+    fil: 'Account sa bangko'
+  },
+  request_money_transfer: {
+    eng: 'Request money transfer',
+    fil: 'Humiling ng paglilipat ng pera'
+  },
+  posted_at: {
+    eng: 'Posted at',
+    fil: 'Nai-post sa'
+  },
+  make_payment: {
+    eng: 'Please make a PromptPay payment using this QR code',
+    fil: 'Mangyaring gumawa ng isang pagbabayad ng PromptPay gamit ang QR code na ito'
+  },
+  upload_payment_receipt: {
+    eng: 'Please upload the payment receipt',
+    fil: 'Mangyaring i-upload ang resibo sa pagbabayad'
+  },
+  upload: {
+    eng: 'Upload',
+    fil: 'I-upload'
   }
 };
 

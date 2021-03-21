@@ -4,12 +4,12 @@ const useAPI = () => {
   const isLoading = ref(false);
   const errorMessage = ref('');
 
-  const call = async ({ callable, data }) => {
+  const call = async ({ callable, data, id }) => {
     isLoading.value = true;
     errorMessage.value = '';
     let response = {};
     try {
-      response = await callable(data);
+      response = !!id && !!data ? await callable(id, data) : !!data ? await callable(data) : !!id ? await callable(id) : await callable();
     } catch (error) {
       errorMessage.value = error.message;
     } finally {

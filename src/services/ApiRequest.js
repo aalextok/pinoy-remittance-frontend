@@ -1,5 +1,6 @@
 
-const baseURL = 'http://localhost:8000'; // TODO: move to config
+// export const baseURL = 'http://localhost:8000'; // TODO: move to config
+export const baseURL = 'http://192.168.0.103:8000';
 const apiPrefix = 'api';
 const headers = {
   'Content-Type': 'application/json',
@@ -13,10 +14,10 @@ const setAuthorizationHeader = () => {
   }
 };
 
-const postData = async (url, data = {}) => {
+const postData = async (url, data = {}, method = 'POST') => {
   setAuthorizationHeader();
   const response = await fetch(url, {
-    method: 'POST',
+    method,
     headers,
     body: JSON.stringify(data),
     credentials: 'same-origin',
@@ -55,5 +56,14 @@ export const AuthApi = {
 };
 
 export const TransactionApi = {
+  get: async (id) => await fetchData(`${baseURL}/${apiPrefix}/transaction/${id}`),
   post: async (data) => await postData(`${baseURL}/${apiPrefix}/transaction`, data),
+  edit: async (id, data) => await postData(`${baseURL}/${apiPrefix}/transaction/${id}`, data, 'PUT'),
+  list: async () => await fetchData(`${baseURL}/${apiPrefix}/transactions`),
+};
+
+export const CustomerApi = {
+  get: async (id = '') => await fetchData(`${baseURL}/${apiPrefix}/customer/details/${id}`),
+  getReceivers: async (id = '') => await fetchData(`${baseURL}/${apiPrefix}/customer/receivers/${id}`),
+  getBankAccounts: async (id = '') => await fetchData(`${baseURL}/${apiPrefix}/customer/bank-accounts/${id}`),
 };

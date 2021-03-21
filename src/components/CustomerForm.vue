@@ -9,7 +9,7 @@
         </div>
         <form @submit.prevent="next">
           <div class="field is-horizontal">
-            <div class="field-body is-justify-content-space-between">
+            <div class="field-body">
               <div class="field">
                 <p class="control">
                   <input class="input" v-model="firstname" type="text" v-bind:placeholder="translation.firstname[lang] + ' *'" >
@@ -31,7 +31,7 @@
             </div>
           </div>
           <div class="field is-horisontal">
-            <div class="field-body is-justify-content-space-between">
+            <div class="field-body">
               <div class="field">
                 <p class="control has-icons-left">
                   <input class="input" v-model="email" type="email" placeholder="Email *" >
@@ -52,7 +52,7 @@
               </div>
             </div>
           </div>
-          <div class="field is-horisontal">
+          <div class="field is-horisontal" v-if="!isLoggedIn">
             <div class="field-body">
               <div class="field">
                 <label class="checkbox">
@@ -62,8 +62,8 @@
               </div>
             </div>
           </div>
-          <div class="field is-horisontal" v-if="signUp">
-            <div class="field-body is-justify-content-space-between">
+          <div class="field is-horisontal" v-if="signUp && !isLoggedIn">
+            <div class="field-body">
               <div class="field">
                 <p class="control has-icons-left">
                   <input class="input" :class="[passwordsMatch ? 'is-success' : 'is-danger']" v-model="password" type="password" v-bind:placeholder="translation.password[lang]" >
@@ -85,10 +85,10 @@
             </div>
           </div>
           <div class="field is-horisontal" v-if="!isLoggedIn">
-            <div class="field-body is-justify-content-space-between">
+            <div class="field-body">
               <div class="file has-name is-boxed">
                 <label class="file-label">
-                  <input class="file-input" type="file" @change="readFile" >
+                  <input class="file-input" type="file" accept="image/*" @change="readFile" >
                   <span class="file-cta" v-if="selfie.dataURL">
                     <img v-bind:src="selfie.dataURL" />
                   </span>
@@ -105,13 +105,16 @@
                   </span>
                 </label>
               </div>
-              <div class="field">
-                <div class="control has-text-right">
-                  <button type="submit" class="button is-ghost" v-bind:disabled="submitIsDisabled" >
-                    <i class="fas fa-angle-right"></i>
-                  </button>
-                </div>
-              </div>
+            </div>
+          </div>
+          <div class="field is-horizontal">
+            <div class="field-body is-flex is-justify-content-space-between">
+              <button type="button" class="button is-ghost" @click="next('back')" >
+                <i class="fas fa-angle-left"></i>
+              </button>
+              <button type="submit" class="button is-ghost" v-bind:disabled="submitIsDisabled" >
+                <i class="fas fa-angle-right"></i>
+              </button>
             </div>
           </div>
         </form>
@@ -121,35 +124,61 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import useAuth from './../composables/useAuth';
+import useAPI from './../composables/useAPI';
+import { CustomerApi } from './../services/ApiRequest';
 import translation from './../translation';
 
 export default {
   name: 'CustomerForm',
   props: [ 'lang', 'data' ],
   emits: [ 'nextStep' ],
-  setup: ({ lang }, { emit }) => {
+  setup: ({ lang, data = {} }, { emit }) => {
     const emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
-    const { isLoggedIn } = useAuth;
-    const loginNotification = ref(!isLoggedIn);
-    const signUp = ref(!isLoggedIn);
+    const { isLoggedIn, user } = useAuth();
+    const { call } = useAPI();
+    const loginNotification = ref(!isLoggedIn.value);
+    const signUp = ref(isLoggedIn.value ? false : data.sign_up );
     const submitIsDisabled = ref(true);
     const passwordsMatch = ref(true);
 
-    const firstname = ref(null);
-    const middlename = ref(null);
-    const lastname = ref(null);
-    const email = ref(null);
-    const phone = ref(null);
-    const password = ref(null);
-    const repeatPassword = ref(null);
-    const selfie = ref({});
+    const firstname = ref(data.firstname || null);
+    const middlename = ref(data.middlename || null);
+    const lastname = ref(data.lastname || null);
+    const email = ref(data.email || null);
+    const phone = ref(data.phone || null);
+    const password = ref(data.password || null);
+    const repeatPassword = ref(data.repeat_password || null);
+    const selfie = ref(data.selfie || {});
 
-    const hideLoginNotification = () => {
-      loginNotification.value = false
-    };
+    const isSubmitDisabled = () => !(
+        !!firstname.value
+        && !!lastname.value
+        && !!phone.value
+        && !!email.value && emailRegex.test(email.value)
+        && !isLoggedIn.value ? !!selfie.value.dataURL : true
+        && (signUp.value ? _match : true)
+      );
+
+    onMounted(() => {
+      const _match = !!password.value && !!repeatPassword.value && password.value === repeatPassword.value;
+      submitIsDisabled.value = isSubmitDisabled();
+      passwordsMatch.value = _match;
+
+      if (isLoggedIn.value) {
+        call({ callable: CustomerApi.get }).then(result => {
+          firstname.value = firstname.value || data.firstname || result.firstname;
+          middlename.value = middlename.value || data.middlename || result.middlename;
+          lastname.value = lastname.value || data.lastname || result.lastname;
+          email.value = email.value || data.email || result.email;
+          phone.value = phone.value || data.phone || result.phone;
+
+          submitIsDisabled.value = isSubmitDisabled();
+        });
+      }
+    });    
 
     watch([ firstname, lastname, email, phone, signUp, password, repeatPassword, selfie ], (values) => {
       const [ _firstname, _lastname, _email, _phone, _new, _password, _password2, _selfie ] = values;
@@ -159,7 +188,7 @@ export default {
         && !!_lastname 
         && !!_phone
         && !!_email && emailRegex.test(_email)
-        && !!_selfie.dataURL
+        && !isLoggedIn.value ? !!_selfie.dataURL : true 
         && (_new ? _match : true)
       );
       passwordsMatch.value = _match;
@@ -182,9 +211,9 @@ export default {
       }
     };
 
-    const next = () => {
-      const data = {
-        step: 2,
+    const next = (direction = 'next') => {
+      const _data = {
+        step: direction === 'back' ? 0 : 2,
         firstname: firstname.value,
         middlename: middlename.value,
         lastname: lastname.value,
@@ -195,8 +224,11 @@ export default {
         repeat_password: repeatPassword.value,
         selfie: selfie.value,
       };
-      // TODO: empty page after submit
-      emit('nextStep', data);
+      emit('nextStep', _data);
+    };
+
+    const hideLoginNotification = () => {
+      loginNotification.value = false
     };
 
     return {

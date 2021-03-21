@@ -4,7 +4,7 @@
       <div class="content">
         <form @submit.prevent="next">
           <div class="field is-horizontal">
-            <div class="field-body is-justify-content-space-between">
+            <div class="field-body">
               <div class="field">
                 <p class="control has-icons-left">
                   <input id="baht" class="input" type="number" min="0" step="0.01" placeholder="Baht *" :value="baht" @input="convert" v-bind:disabled="inputIsDisabled" >
@@ -45,7 +45,7 @@
               </div>
             </div>
           </div>
-          <div class="notification is-danger" v-if="errorMessage">
+          <div class="notification is-danger is-light" v-if="errorMessage">
             <button type="button" class="delete" @click="resetError"></button>
             {{ errorMessage }}
           </div>
@@ -65,18 +65,18 @@ export default {
   name: 'CurrencyConverter',
   emits: [ 'nextStep' ],
   props: [ 'lang', 'data' ],
-  setup: ({ lang }, { emit }) => {
+  setup: ({ lang, data = {} }, { emit }) => {
 
-    const baht = ref(null);
-    const peso = ref(null);
-    const type = ref('bank');
+    const baht = ref(data.baht || null);
+    const peso = ref(data.peso || null);
+    const type = ref(data.type || 'bank');
     const exchangeRate = ref({ bank: {}, remittance: {} });
     let fees = [];
     const fee = ref(null);
     
     const { errorMessage, call, resetError } = useAPI();
 
-    let lastFocusedInputId = null;
+    let lastFocusedInputId = data.convert_from;
     const inputIsDisabled = ref(true);
     const submitIsDisabled = ref(true);
 
@@ -91,6 +91,8 @@ export default {
           fee: parseFloat(_fee.fee),
         }));
         inputIsDisabled.value = false;
+        convert();
+        submitIsDisabled.value = !(!!baht.value && !!peso.value);
       });
     });
 
@@ -107,6 +109,7 @@ export default {
         inputId = focusedId;
         lastFocusedInputId = focusedId;
       }
+
       const elementBaht = document.getElementById('baht');
       const elementPeso = document.getElementById('peso');
 
@@ -136,7 +139,7 @@ export default {
         if (!Number.isNaN(value) && value > 0) {
           const _baht = value / exchangeRate.value[type.value].peso;
           const _fee = fees.find(({ min, max, type: _type }) => _baht > min && _baht <= max && _type === type.value);
-          if (_baht - _fee > 0) {
+          if (_baht - _fee.fee > 0) {
             baht.value = (_baht - _fee.fee).toFixed(2);
             fee.value = _fee;
             return;
@@ -148,9 +151,9 @@ export default {
     };
 
     const next = () => {
-      // TODO: preserve exchange direction - last focused id
-      const data = {
+      const _data = {
         step: 1,
+        convert_from: lastFocusedInputId,
         baht: baht.value,
         peso: peso.value,
         type: type.value,
@@ -159,7 +162,7 @@ export default {
         fee: fee.value.fee,
         fee_id: fee.value.id,
       };
-      emit('nextStep', data);
+      emit('nextStep', _data);
     };
 
 

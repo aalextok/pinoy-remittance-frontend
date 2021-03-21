@@ -6,3 +6,11 @@
   color: #2c3e50;
   margin-top: 60px;
 }
+.notification.is-cancelled.is-light {
+  background-color: rgb(224 175 255);
+  color: rgb(162 15 126);
+}
+.notification.is-disputed.is-light {
+  background-color: rgb(255 207 178);
+  color: rgb(204, 91, 15);
+}
